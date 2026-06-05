@@ -7,7 +7,7 @@ st.markdown(
     <style>
     /* Background */
     .stApp {
-        background-image: url("https://images.unsplash.com/photo-1524995997946-a1c2e315a42f");
+        background-image: url("GUBG.WEBP");
         background-size: cover;
         background-position: center;
         background-repeat: no-repeat;
