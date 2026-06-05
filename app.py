@@ -6,7 +6,7 @@ st.markdown(
     """
     <style>
     .stApp {
-        background-image: url("https://collegedunia.com/university/25940-galgotias-university-gu-greater-noida/gallery");
+        background-image: url("https://imgs.search.brave.com/SEfZc-HDMp-lpuywXMKSyjWxdsf8oCTEe3JqbH8BHV0/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9pbWFn/ZS1zdGF0aWMuY29s/bGVnZWR1bmlhLmNv/bS9wdWJsaWMvY29s/bGVnZV9kYXRhL2lt/YWdlcy9jYW1wdXNp/bWFnZS8xNzY2NDIy/OTcwY2FtcHVzJTIw/KDIzKS5qcGc");
         background-size: cover;
         background-position: center;
         background-repeat: no-repeat;
