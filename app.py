@@ -1,44 +1,27 @@
 import streamlit as st
 import pandas as pd
 import joblib
-import traceback
 
+# Page Config
 st.set_page_config(
-    page_title="Student Performance Predictor",
-    page_icon="🎓"
+    page_title="Student Performance Rating Predictor",
+    page_icon="🎓",
+    layout="centered"
 )
 
 st.title("🎓 Student Performance Rating Predictor")
 
-# =========================
-# LOAD MODEL & ENCODER
-# =========================
-
-model = None
-encoder = None
-
+# Load Models
 try:
-    model = joblib.load("student_rating_model.pkl")
-    
-except Exception as e:
-    st.error("❌ Error loading model")
-    st.code(traceback.format_exc())
-
-try:
+    rf_model = joblib.load("random_forest_model.pkl")
+    lr_model = joblib.load("linear_regression_model.pkl")
     encoder = joblib.load("encoder.pkl")
-    
 except Exception as e:
-    st.error("❌ Error loading encoder")
-    st.code(traceback.format_exc())
-
-# Stop app if model or encoder not loaded
-if model is None or encoder is None:
+    st.error("Error loading model files")
+    st.code(str(e))
     st.stop()
 
-# =========================
-# INPUTS
-# =========================
-
+# Input Fields
 project_made = st.selectbox(
     "Project Made",
     ["Yes", "No"]
@@ -50,9 +33,10 @@ presentation = st.selectbox(
 )
 
 lab_work = st.slider(
-    "Lab Work Completion (0-12)",
+    "Lab Work Completion",
     0,
-    12
+    12,
+    6
 )
 
 project_deployed = st.selectbox(
@@ -61,9 +45,10 @@ project_deployed = st.selectbox(
 )
 
 viva = st.slider(
-    "Viva Marks (0-5)",
+    "Viva Marks",
     0,
-    5
+    5,
+    2
 )
 
 participation = st.selectbox(
@@ -77,86 +62,96 @@ discipline = st.selectbox(
 )
 
 collaboration = st.slider(
-    "Collaboration Score (0-10)",
+    "Collaboration Score",
     0,
-    10
-)
-
-assignment = st.slider(
-    "Assignment Quality (0-5)",
-    0,
+    10,
     5
 )
 
-# =========================
-# PREDICTION
-# =========================
+assignment = st.slider(
+    "Assignment Quality",
+    0,
+    5,
+    2
+)
 
+# Prediction
 if st.button("Predict Rating"):
-    try:
-        input_df = pd.DataFrame(
-            [[
-                project_made,
-                presentation,
-                project_deployed,
-                participation,
-                discipline,
-                lab_work,
-                viva,
-                collaboration,
-                assignment
-            ]],
-            columns=[
-                "Project_Made",
-                "Presentation_Grade",
-                "Project_Deployed",
-                "Class_Participation",
-                "Discipline_Score",
-                "Lab_Work_Completion",
-                "Viva_Marks",
-                "Collaboration_Score",
-                "Assignment_Quality"
-            ]
-        )
 
-        categorical_cols = [
+    input_df = pd.DataFrame(
+        [[
+            project_made,
+            presentation,
+            project_deployed,
+            participation,
+            discipline,
+            lab_work,
+            viva,
+            collaboration,
+            assignment
+        ]],
+        columns=[
             "Project_Made",
             "Presentation_Grade",
             "Project_Deployed",
             "Class_Participation",
-            "Discipline_Score"
-        ]
-
-        numeric_cols = [
+            "Discipline_Score",
             "Lab_Work_Completion",
             "Viva_Marks",
             "Collaboration_Score",
             "Assignment_Quality"
         ]
+    )
 
-        encoded = encoder.transform(input_df[categorical_cols])
+    categorical_cols = [
+        "Project_Made",
+        "Presentation_Grade",
+        "Project_Deployed",
+        "Class_Participation",
+        "Discipline_Score"
+    ]
 
-        encoded_df = pd.DataFrame(
-            encoded,
-            columns=encoder.get_feature_names_out(categorical_cols)
-        )
+    numeric_cols = [
+        "Lab_Work_Completion",
+        "Viva_Marks",
+        "Collaboration_Score",
+        "Assignment_Quality"
+    ]
 
-        final_input = pd.concat(
-            [
-                input_df[numeric_cols].reset_index(drop=True),
-                encoded_df.reset_index(drop=True)
-            ],
-            axis=1
-        )
+    encoded = encoder.transform(
+        input_df[categorical_cols]
+    )
 
-        prediction = model.predict(final_input)[0]
+    encoded_df = pd.DataFrame(
+        encoded,
+        columns=encoder.get_feature_names_out(categorical_cols)
+    )
 
-        st.success(
-            f"⭐ Predicted Student Rating: {prediction:.2f} / 10"
-        )
+    final_input = pd.concat(
+        [input_df[numeric_cols], encoded_df],
+        axis=1
+    )
 
-    except Exception:
-        st.error("❌ Prediction failed")
-        st.code(traceback.format_exc())
+    rf_prediction = rf_model.predict(final_input)[0]
+    lr_prediction = lr_model.predict(final_input)[0]
 
+    # Keep score in range
+    rf_prediction = max(0, min(10, rf_prediction))
+    lr_prediction = max(0, min(10, lr_prediction))
 
+    st.subheader("📊 Prediction Results")
+
+    st.success(
+        f"🌲 Random Forest Rating: {rf_prediction:.2f}/10"
+    )
+
+    st.info(
+        f"📈 Linear Regression Rating: {lr_prediction:.2f}/10"
+    )
+
+    st.divider()
+
+    st.metric(
+        label="Difference Between Models",
+        value=f"{abs(rf_prediction - lr_prediction):.2f}"
+    )
