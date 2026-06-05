@@ -2,6 +2,28 @@ import streamlit as st
 import pandas as pd
 import joblib
 
+st.markdown(
+    """
+    <style>
+    .stApp {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+    }
+
+    .block-container {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border-radius: 15px;
+        padding: 20px;
+    }
+
+    h1, h2, h3, p {
+        color: white !important;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
 # ---------------------------
 # Page Configuration
 # ---------------------------
