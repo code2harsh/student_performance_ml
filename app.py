@@ -5,49 +5,22 @@ import joblib
 st.markdown(
     """
     <style>
-    /* Background */
     .stApp {
-        background-image: url("GUBG.png");
+        background-image: url("https://collegedunia.com/university/25940-galgotias-university-gu-greater-noida/gallery");
         background-size: cover;
         background-position: center;
         background-repeat: no-repeat;
         background-attachment: fixed;
     }
 
-    /* Main container (glass effect) */
     .block-container {
-        background: rgba(255, 255, 255, 0.85);
+        background: rgba(255, 255, 255, 0.80);
         padding: 2rem;
         border-radius: 15px;
-        box-shadow: 0px 4px 20px rgba(0,0,0,0.2);
     }
 
-    /* Text styling */
-    h1, h2, h3 {
-        color: #1a1a1a !important;
-    }
-
-    p, label, span {
-        color: #222222 !important;
-        font-size: 16px;
-    }
-
-    /* Buttons */
-    .stButton>button {
-        background-color: #1f4e79;
-        color: white;
-        border-radius: 8px;
-        padding: 0.5rem 1rem;
-        font-weight: bold;
-    }
-
-    .stButton>button:hover {
-        background-color: #163a5c;
-    }
-
-    /* Input boxes */
-    .stSelectbox, .stSlider {
-        color: black !important;
+    h1, h2, h3, p, label {
+        color: #111 !important;
     }
     </style>
     """,
