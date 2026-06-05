@@ -5,6 +5,7 @@ import joblib
 st.markdown(
     """
     <style>
+    /* Background */
     .stApp {
         background-image: url("https://images.unsplash.com/photo-1524995997946-a1c2e315a42f");
         background-size: cover;
@@ -13,15 +14,40 @@ st.markdown(
         background-attachment: fixed;
     }
 
-    /* Optional: Make text more readable */
-    .main {
-        background-color: rgba(0, 0, 0, 0.6);
-        padding: 20px;
-        border-radius: 10px;
+    /* Main container (glass effect) */
+    .block-container {
+        background: rgba(255, 255, 255, 0.85);
+        padding: 2rem;
+        border-radius: 15px;
+        box-shadow: 0px 4px 20px rgba(0,0,0,0.2);
     }
 
-    h1, h2, h3, p {
-        color: white !important;
+    /* Text styling */
+    h1, h2, h3 {
+        color: #1a1a1a !important;
+    }
+
+    p, label, span {
+        color: #222222 !important;
+        font-size: 16px;
+    }
+
+    /* Buttons */
+    .stButton>button {
+        background-color: #1f4e79;
+        color: white;
+        border-radius: 8px;
+        padding: 0.5rem 1rem;
+        font-weight: bold;
+    }
+
+    .stButton>button:hover {
+        background-color: #163a5c;
+    }
+
+    /* Input boxes */
+    .stSelectbox, .stSlider {
+        color: black !important;
     }
     </style>
     """,
