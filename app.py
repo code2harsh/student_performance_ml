@@ -2,6 +2,18 @@ import streamlit as st
 import pandas as pd
 import joblib
 
+# ---------------------------
+# Page Configuration (KEEP AT TOP)
+# ---------------------------
+st.set_page_config(
+    page_title="Student Performance Rating Predictor",
+    page_icon="🎓",
+    layout="centered"
+)
+
+# ---------------------------
+# BACKGROUND + UI STYLING
+# ---------------------------
 st.markdown(
     """
     <style>
@@ -14,7 +26,7 @@ st.markdown(
     }
 
     .block-container {
-        background: rgba(255, 255, 255, 0.80);
+        background: rgba(255, 255, 255, 0.85);
         padding: 2rem;
         border-radius: 15px;
     }
@@ -22,25 +34,50 @@ st.markdown(
     h1, h2, h3, p, label {
         color: #111 !important;
     }
+
+    /* ---------------- BUTTONS ---------------- */
+
+    /* ALL BUTTONS BASE STYLE */
+    .stButton>button {
+        border-radius: 8px;
+        font-weight: bold;
+        padding: 0.5rem 1rem;
+        border: none;
+    }
+
+    /* RESET BUTTON (RED) */
+    .stButton>button:first-child {
+        background-color: #e74c3c !important;
+        color: white !important;
+    }
+
+    .stButton>button:first-child:hover {
+        background-color: #c0392b !important;
+    }
+
+    /* PREDICT BUTTON (LIGHT BLUE) */
+    .stButton>button {
+        background-color: #4fc3f7 !important;
+        color: black !important;
+    }
+
+    .stButton>button:hover {
+        background-color: #29b6f6 !important;
+    }
+
     </style>
     """,
     unsafe_allow_html=True
 )
 
 # ---------------------------
-# Page Configuration
+# TITLE
 # ---------------------------
-st.set_page_config(
-    page_title="Student Performance Rating Predictor",
-    page_icon="🎓",
-    layout="centered"
-)
-
 st.title("🎓 Student Performance Rating Predictor")
 st.write("Enter student details and compare predictions from different ML models.")
 
 # ---------------------------
-# RESET FUNCTION (IMPORTANT FIX)
+# RESET FUNCTION
 # ---------------------------
 def reset_form():
     st.session_state.project_made = "Select"
@@ -54,25 +91,22 @@ def reset_form():
     st.session_state.collaboration = 0
     st.session_state.assignment = 0
 
-
 # ---------------------------
-# Initialize state ONLY ON FIRST LOAD
+# INIT STATE
 # ---------------------------
 if "init" not in st.session_state:
     reset_form()
     st.session_state.init = True
 
-
 # ---------------------------
-# Reset Button (FORCES CLEAN STATE)
+# RESET BUTTON
 # ---------------------------
 if st.button("🔄 Reset Form"):
     reset_form()
     st.rerun()
 
-
 # ---------------------------
-# Load Models
+# LOAD MODELS
 # ---------------------------
 try:
     rf_model = joblib.load("random_forest_model.pkl")
@@ -82,67 +116,29 @@ except Exception as e:
     st.error(f"Error loading model files: {e}")
     st.stop()
 
+# ---------------------------
+# INPUT FIELDS
+# ---------------------------
+project_made = st.selectbox("Project Made", ["Select", "Yes", "No"], key="project_made")
+
+presentation = st.selectbox("Presentation Grade", ["Select", "A", "B", "C", "D", "E"], key="presentation")
+
+lab_work = st.slider("Lab Work Completion (0-12)", 0, 12, key="lab_work")
+
+project_deployed = st.selectbox("Project Deployed", ["Select", "Yes", "No"], key="project_deployed")
+
+viva = st.slider("Viva Marks (0-5)", 0, 5, key="viva")
+
+participation = st.selectbox("Class Participation", ["Select", "Active", "Partially Active", "Not Participating"], key="participation")
+
+discipline = st.selectbox("Discipline Score", ["Select", "Excellent", "Good", "Average", "Below Average"], key="discipline")
+
+collaboration = st.slider("Collaboration Score (0-10)", 0, 10, key="collaboration")
+
+assignment = st.slider("Assignment Quality (0-5)", 0, 5, key="assignment")
 
 # ---------------------------
-# Input Fields (ALL CONTROLLED BY session_state)
-# ---------------------------
-project_made = st.selectbox(
-    "Project Made",
-    ["Select", "Yes", "No"],
-    key="project_made"
-)
-
-presentation = st.selectbox(
-    "Presentation Grade",
-    ["Select", "A", "B", "C", "D", "E"],
-    key="presentation"
-)
-
-lab_work = st.slider(
-    "Lab Work Completion (0-12)",
-    0, 12,
-    key="lab_work"
-)
-
-project_deployed = st.selectbox(
-    "Project Deployed",
-    ["Select", "Yes", "No"],
-    key="project_deployed"
-)
-
-viva = st.slider(
-    "Viva Marks (0-5)",
-    0, 5,
-    key="viva"
-)
-
-participation = st.selectbox(
-    "Class Participation",
-    ["Select", "Active", "Partially Active", "Not Participating"],
-    key="participation"
-)
-
-discipline = st.selectbox(
-    "Discipline Score",
-    ["Select", "Excellent", "Good", "Average", "Below Average"],
-    key="discipline"
-)
-
-collaboration = st.slider(
-    "Collaboration Score (0-10)",
-    0, 10,
-    key="collaboration"
-)
-
-assignment = st.slider(
-    "Assignment Quality (0-5)",
-    0, 5,
-    key="assignment"
-)
-
-
-# ---------------------------
-# Prediction Button
+# PREDICTION
 # ---------------------------
 if st.button("Predict Rating"):
 
@@ -156,7 +152,6 @@ if st.button("Predict Rating"):
         st.error("⚠ Please select all dropdown fields before prediction.")
         st.stop()
 
-    # Create DataFrame
     input_df = pd.DataFrame(
         [[
             project_made,
@@ -197,7 +192,6 @@ if st.button("Predict Rating"):
         "Assignment_Quality"
     ]
 
-    # Encode categorical data
     encoded = encoder.transform(input_df[categorical_cols])
 
     encoded_df = pd.DataFrame(
@@ -210,7 +204,6 @@ if st.button("Predict Rating"):
         axis=1
     )
 
-    # Predictions
     rf_prediction = rf_model.predict(final_input)[0]
     lr_prediction = lr_model.predict(final_input)[0]
 
@@ -219,14 +212,10 @@ if st.button("Predict Rating"):
 
     final_prediction = (rf_prediction + lr_prediction) / 2
 
-    # Results
     st.subheader("📊 Prediction Results")
 
     st.success(f"🌲 Random Forest Rating: {rf_prediction:.2f}/10")
     st.info(f"📈 Linear Regression Rating: {lr_prediction:.2f}/10")
     st.warning(f"⭐ Final Average Rating: {final_prediction:.2f}/10")
 
-    st.metric(
-        "Difference Between Models",
-        f"{abs(rf_prediction - lr_prediction):.2f}"
-    )
+    st.metric("Difference Between Models", f"{abs(rf_prediction - lr_prediction):.2f}")
