@@ -37,12 +37,12 @@ def generate_row():
     if row["Discipline_Score"] == "Excellent": rating += 0.5
     elif row["Discipline_Score"] == "Good": rating += 0.25
 
-    rating += random.uniform(-0.3, 0.3)
+    rating += random.uniform(-0.1, 0.1)
     row["Rating"] = round(min(max(rating, 0), 10), 2)
 
     return row
 
-data = [generate_row() for _ in range(1000)]
+data = [generate_row() for _ in range(50000)]
 df = pd.DataFrame(data)
 filename = "student_performance_dataset.csv"
 df.to_csv(filename, index=False)

@@ -158,3 +158,5 @@ if st.button("Predict Rating"):
     except Exception:
         st.error("❌ Prediction failed")
         st.code(traceback.format_exc())
+
+
