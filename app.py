@@ -2,7 +2,9 @@ import streamlit as st
 import pandas as pd
 import joblib
 
-# Page Config
+# ---------------------------
+# Page Configuration
+# ---------------------------
 st.set_page_config(
     page_title="Student Performance Rating Predictor",
     page_icon="🎓",
@@ -10,74 +12,126 @@ st.set_page_config(
 )
 
 st.title("🎓 Student Performance Rating Predictor")
+st.write("Enter student details and compare predictions from different ML models.")
 
+# ---------------------------
+# RESET FUNCTION (IMPORTANT FIX)
+# ---------------------------
+def reset_form():
+    st.session_state.project_made = "Select"
+    st.session_state.presentation = "Select"
+    st.session_state.project_deployed = "Select"
+    st.session_state.participation = "Select"
+    st.session_state.discipline = "Select"
+
+    st.session_state.lab_work = 0
+    st.session_state.viva = 0
+    st.session_state.collaboration = 0
+    st.session_state.assignment = 0
+
+
+# ---------------------------
+# Initialize state ONLY ON FIRST LOAD
+# ---------------------------
+if "init" not in st.session_state:
+    reset_form()
+    st.session_state.init = True
+
+
+# ---------------------------
+# Reset Button (FORCES CLEAN STATE)
+# ---------------------------
+if st.button("🔄 Reset Form"):
+    reset_form()
+    st.rerun()
+
+
+# ---------------------------
 # Load Models
+# ---------------------------
 try:
     rf_model = joblib.load("random_forest_model.pkl")
     lr_model = joblib.load("linear_regression_model.pkl")
     encoder = joblib.load("encoder.pkl")
 except Exception as e:
-    st.error("Error loading model files")
-    st.code(str(e))
+    st.error(f"Error loading model files: {e}")
     st.stop()
 
-# Input Fields
+
+# ---------------------------
+# Input Fields (ALL CONTROLLED BY session_state)
+# ---------------------------
 project_made = st.selectbox(
     "Project Made",
-    ["Yes", "No"]
+    ["Select", "Yes", "No"],
+    key="project_made"
 )
 
 presentation = st.selectbox(
     "Presentation Grade",
-    ["A", "B", "C", "D", "E"]
+    ["Select", "A", "B", "C", "D", "E"],
+    key="presentation"
 )
 
 lab_work = st.slider(
-    "Lab Work Completion",
-    0,
-    12,
-    6
+    "Lab Work Completion (0-12)",
+    0, 12,
+    key="lab_work"
 )
 
 project_deployed = st.selectbox(
     "Project Deployed",
-    ["Yes", "No"]
+    ["Select", "Yes", "No"],
+    key="project_deployed"
 )
 
 viva = st.slider(
-    "Viva Marks",
-    0,
-    5,
-    2
+    "Viva Marks (0-5)",
+    0, 5,
+    key="viva"
 )
 
 participation = st.selectbox(
     "Class Participation",
-    ["Active", "Partially Active", "Not Participating"]
+    ["Select", "Active", "Partially Active", "Not Participating"],
+    key="participation"
 )
 
 discipline = st.selectbox(
     "Discipline Score",
-    ["Excellent", "Good", "Average", "Below Average"]
+    ["Select", "Excellent", "Good", "Average", "Below Average"],
+    key="discipline"
 )
 
 collaboration = st.slider(
-    "Collaboration Score",
-    0,
-    10,
-    5
+    "Collaboration Score (0-10)",
+    0, 10,
+    key="collaboration"
 )
 
 assignment = st.slider(
-    "Assignment Quality",
-    0,
-    5,
-    2
+    "Assignment Quality (0-5)",
+    0, 5,
+    key="assignment"
 )
 
-# Prediction
+
+# ---------------------------
+# Prediction Button
+# ---------------------------
 if st.button("Predict Rating"):
 
+    if (
+        project_made == "Select"
+        or presentation == "Select"
+        or project_deployed == "Select"
+        or participation == "Select"
+        or discipline == "Select"
+    ):
+        st.error("⚠ Please select all dropdown fields before prediction.")
+        st.stop()
+
+    # Create DataFrame
     input_df = pd.DataFrame(
         [[
             project_made,
@@ -118,9 +172,8 @@ if st.button("Predict Rating"):
         "Assignment_Quality"
     ]
 
-    encoded = encoder.transform(
-        input_df[categorical_cols]
-    )
+    # Encode categorical data
+    encoded = encoder.transform(input_df[categorical_cols])
 
     encoded_df = pd.DataFrame(
         encoded,
@@ -132,26 +185,23 @@ if st.button("Predict Rating"):
         axis=1
     )
 
+    # Predictions
     rf_prediction = rf_model.predict(final_input)[0]
     lr_prediction = lr_model.predict(final_input)[0]
 
-    # Keep score in range
     rf_prediction = max(0, min(10, rf_prediction))
     lr_prediction = max(0, min(10, lr_prediction))
 
+    final_prediction = (rf_prediction + lr_prediction) / 2
+
+    # Results
     st.subheader("📊 Prediction Results")
 
-    st.success(
-        f"🌲 Random Forest Rating: {rf_prediction:.2f}/10"
-    )
-
-    st.info(
-        f"📈 Linear Regression Rating: {lr_prediction:.2f}/10"
-    )
-
-    st.divider()
+    st.success(f"🌲 Random Forest Rating: {rf_prediction:.2f}/10")
+    st.info(f"📈 Linear Regression Rating: {lr_prediction:.2f}/10")
+    st.warning(f"⭐ Final Average Rating: {final_prediction:.2f}/10")
 
     st.metric(
-        label="Difference Between Models",
-        value=f"{abs(rf_prediction - lr_prediction):.2f}"
+        "Difference Between Models",
+        f"{abs(rf_prediction - lr_prediction):.2f}"
     )
