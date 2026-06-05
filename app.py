@@ -19,14 +19,14 @@ encoder = None
 
 try:
     model = joblib.load("student_rating_model.pkl")
-    st.success("✅ Model loaded successfully")
+    
 except Exception as e:
     st.error("❌ Error loading model")
     st.code(traceback.format_exc())
 
 try:
     encoder = joblib.load("encoder.pkl")
-    st.success("✅ Encoder loaded successfully")
+    
 except Exception as e:
     st.error("❌ Error loading encoder")
     st.code(traceback.format_exc())
